@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Settings as SettingsIcon, 
   Bell, 
@@ -8,16 +8,34 @@ import {
   Globe, 
   Palette,
   Database,
-  Shield
+  Shield,
+  ChevronLeft,
+  Mail
 } from 'lucide-react';
+import ChangePasswordModal from '@/components/ChangePasswordModal';
+import UpdateEmailModal from '@/components/UpdateEmailModal';
+import { useAuth } from '@/components/AuthProvider';
 
 export default function SettingsPage() {
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const { user } = useAuth();
+
   const sections = [
     {
       title: 'إعدادات الحساب',
       icon: Lock,
       items: [
-        { label: 'تغيير كلمة المرور', description: 'تحديث كلمة المرور الخاصة بك' },
+        { 
+          label: 'تغيير البريد الإلكتروني', 
+          description: user?.email || 'تحديث بريدك الإلكتروني',
+          onClick: () => setIsEmailModalOpen(true)
+        },
+        { 
+          label: 'تغيير كلمة المرور', 
+          description: 'تحديث كلمة المرور الخاصة بك',
+          onClick: () => setIsPasswordModalOpen(true)
+        },
         { label: 'المصادقة الثنائية', description: 'زيادة أمان حسابك' },
       ]
     },
@@ -58,13 +76,17 @@ export default function SettingsPage() {
               </div>
               <div className="divide-y divide-slate-50">
                 {section.items.map((item) => (
-                  <button key={item.label} className="w-full p-6 flex items-center justify-between hover:bg-slate-50 transition-all text-right">
+                  <button 
+                    key={item.label} 
+                    onClick={item.onClick}
+                    className="w-full p-6 flex items-center justify-between hover:bg-slate-50 transition-all text-right group"
+                  >
                     <div>
-                      <p className="font-medium text-slate-900">{item.label}</p>
+                      <p className="font-medium text-slate-900 group-hover:text-indigo-600 transition-colors">{item.label}</p>
                       <p className="text-sm text-slate-500">{item.description}</p>
                     </div>
-                    <div className="text-slate-300">
-                      <Globe size={20} />
+                    <div className="text-slate-300 group-hover:text-indigo-400 transition-colors">
+                      <ChevronLeft size={20} />
                     </div>
                   </button>
                 ))}
@@ -99,6 +121,17 @@ export default function SettingsPage() {
           </div>
         </div>
       </div>
+
+      <ChangePasswordModal 
+        isOpen={isPasswordModalOpen} 
+        onClose={() => setIsPasswordModalOpen(false)} 
+      />
+
+      <UpdateEmailModal
+        isOpen={isEmailModalOpen}
+        onClose={() => setIsEmailModalOpen(false)}
+        currentEmail={user?.email}
+      />
     </div>
   );
 }
